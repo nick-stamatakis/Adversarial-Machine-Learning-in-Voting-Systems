@@ -51,11 +51,10 @@ def create_pdf_pages(bubble_dir, bubbles_per_page):
         y_offset = 72  # 1 inch margin
         image_width = (letter[0] - 2 * x_offset) / 10
         image_height = (letter[1] - 2 * y_offset) / (bubbles_per_page / 10)
-        print("image height "+ str(image_height))
 
         x_separation = (letter[0] - 2 * x_offset - 10 * image_width) / 9  # Calculate separation between bubbles in the x direction
         y_separation = (letter[1] - 2 * y_offset - (bubbles_per_page // 10) * image_height) / (bubbles_per_page // 10 - 1)  # Calculate separation between bubbles in the y direction
-        print("x" +str(x_separation)+ "y" + str(y_separation))
+
         for i, image_path in enumerate(images):
             row = i // 10
             col = i % 10
