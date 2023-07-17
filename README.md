@@ -1,4 +1,4 @@
-# MachineLearningREU
+# Adversarial-Machine-Learning-in-Voting-Systems
 Designed a support vector machine to audit votes for the state of Connecticut in order to confirm results given by the tabulators. 
 Used Adversarial Machine learning techniques to perform attacks on the model to improve its accuracy.
 Created python scripts to understand how printing and scanning affects a sheet of bubbles.
