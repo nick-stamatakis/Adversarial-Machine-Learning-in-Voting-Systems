@@ -4,4 +4,4 @@ Used Adversarial Machine learning techniques to perform attacks on the model to 
 Created python scripts to understand how printing and scanning affects a sheet of bubbles.
 --i.e. what are the transformations/translations on average that affect the alignment of a ballot.
 
-Research funded by the National Science Foundation and conducted at the University of Conneticut under their Resaerch for Undergraduates program.
+Funded by the National Science Foundation and conducted at the University of Conneticut under their Research for Undergraduates program.
