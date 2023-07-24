@@ -84,7 +84,7 @@ while bubbles_placed < len(png_files):
 
         # Get the label from the filename and add it to the labels list
         _, _, label = get_batch_example_and_label(bubble_file)
-        label_value = 1 if label == "Vote" else 0
+        label_value = 0 if label == "Vote" else 1
         labels.append(label_value)
 
         x += BUBBLE_WIDTH + SPACING
