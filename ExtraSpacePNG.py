@@ -1,5 +1,6 @@
 import os
 from PIL import Image, ImageDraw
+import re
 
 # Constants for sheet layout
 PAGE_WIDTH = int(8.5 * 200)  # 8.5 inches converted to pixels at 200 dpi
@@ -10,22 +11,55 @@ BUBBLE_WIDTH = 50  # Bubble width in pixels
 BUBBLE_HEIGHT = 40  # Bubble height in pixels
 
 # Directory containing the bubble PNGs
-bubble_directory = "Printing_Val_vs_Adv/BalCombined_DenseNet_PGD_Adv_Images"
+bubble_directory = "Printed_Val_vs_Adv/BalCombined_SimpleCNN_PGD_Adv_Images"
 
-# Create the PreImages directory if it doesn't exist
-os.makedirs("PreImages", exist_ok=True)
+# Create the Val directory if it doesn't exist
+os.makedirs("PreImagesSimpleCNN_Adv", exist_ok=True)
 
-# Get the list of PNG files in the bubble directory
+# Function to extract batch_index and example_index from the filename
+def get_batch_and_example_indices(filename):
+    pattern = r"__(\d+)th Batch (\d+)th Example__(Vote|Non-Vote).png"
+    match = re.match(pattern, filename)
+
+    if match:
+        batch_index = int(match.group(1))
+        example_index = int(match.group(2))
+        return batch_index, example_index
+    else:
+        raise ValueError(f"Invalid filename format: {filename}")
+
+
+# Get the list of PNG files in the bubble directory, sort them based on batch and example indices
 png_files = [file for file in os.listdir(bubble_directory) if file.endswith(".png")]
+png_files.sort(key=get_batch_and_example_indices)
 
-# Calculate the number of bubbles that can fit on the sheet
-num_columns = int((PAGE_WIDTH - 2 * MARGIN + SPACING) / (BUBBLE_WIDTH + SPACING))
-num_rows = int((PAGE_HEIGHT - 2 * MARGIN + SPACING) / (BUBBLE_HEIGHT + SPACING))
-total_bubbles = num_columns * num_rows
+# Calculate the number of bubbles that can fit on each sheet
+available_width = PAGE_WIDTH - 2 * MARGIN
+available_height = PAGE_HEIGHT - 2 * MARGIN
+num_columns = available_width // (BUBBLE_WIDTH + SPACING)
+num_rows = available_height // (BUBBLE_HEIGHT + SPACING)
+total_bubbles_per_sheet = num_columns * num_rows
 
-# Iterate over the PNG files and place them on the sheets
+# Initialize counters
 sheet_index = 1
 bubbles_placed = 0
+
+# Initialize an empty list to store the labels (0 for "Non-Vote", 1 for "Vote")
+labels = []
+
+# Function to extract batch_index, example_index, and label from the filename
+def get_batch_example_and_label(filename):
+    pattern = r"__(\d+)th Batch (\d+)th Example__(Vote|Non-Vote).png"
+    match = re.match(pattern, filename)
+
+    if match:
+        batch_index = int(match.group(1))
+        example_index = int(match.group(2))
+        label = match.group(3)
+        return batch_index, example_index, label
+    else:
+        # Return default values in case the label is not present in the filename
+        return -1, -1, "Unknown"
 
 while bubbles_placed < len(png_files):
     # Create a new blank sheet
@@ -36,8 +70,8 @@ while bubbles_placed < len(png_files):
     x = MARGIN
     y = MARGIN
 
-    for index in range(bubbles_placed, min(bubbles_placed + total_bubbles, len(png_files))):
-        if index % num_columns == 0 and index != 0:
+    for index in range(bubbles_placed, min(bubbles_placed + total_bubbles_per_sheet, len(png_files))):
+        if (index - bubbles_placed) % num_columns == 0 and index != bubbles_placed:
             # Move to the next row
             x = MARGIN
             y += BUBBLE_HEIGHT + SPACING
@@ -48,14 +82,20 @@ while bubbles_placed < len(png_files):
 
         sheet.paste(bubble, (x, y))
 
+        # Get the label from the filename and add it to the labels list
+        _, _, label = get_batch_example_and_label(bubble_file)
+        label_value = 1 if label == "Vote" else 0
+        labels.append(label_value)
+
         x += BUBBLE_WIDTH + SPACING
 
-    # Save the sheet in the PreImages directory
-    output_path = f"PreImages/output_sheet_{sheet_index}.png"
+    # Save the sheet in the PreImagesSimpleCNN_Val directory
+    output_path = f"PreImagesSimpleCNN_Adv/output_sheet_{sheet_index}.png"
     sheet.save(output_path)
 
     # Update the counters
     sheet_index += 1
-    bubbles_placed += total_bubbles
+    bubbles_placed += total_bubbles_per_sheet
 
-print(f"{sheet_index - 1} sheets have been generated in the PreImages directory.")
+print(f"{sheet_index - 1} sheets have been generated in the PreImagesSimpleCNN_Val directory.")
+print("Labels array:", labels)
