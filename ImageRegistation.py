@@ -3,38 +3,39 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-def align_images(reference_image, image):
-    # Convert images to grayscale
-    reference_gray = cv2.cvtColor(reference_image, cv2.COLOR_BGR2GRAY)
-    image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+def align_images(reference_image, image):
     # Find features and match keypoints
-    orb = cv2.ORB_create()
-    keypoints_reference, descriptors_reference = orb.detectAndCompute(reference_gray, None)
-    keypoints_image, descriptors_image = orb.detectAndCompute(image_gray, None)
+    sift = cv2.SIFT_create()
+    keypoints_reference, descriptors_reference = sift.detectAndCompute(reference_image, None)
+    keypoints_image, descriptors_image = sift.detectAndCompute(image, None)
 
     # Match keypoints using Brute-Force matcher
-    matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-    matches = matcher.match(descriptors_reference, descriptors_image)
+    matcher = cv2.BFMatcher()
+    matches = matcher.knnMatch(descriptors_reference, descriptors_image, k=2)
 
-    if len(matches) < 4:
+    # Apply ratio test to select good matches
+    good_matches = []
+    for m, n in matches:
+        if m.distance < 0.75 * n.distance:
+            good_matches.append(m)
+
+    if len(good_matches) < 4:
         raise ValueError("Insufficient matches found for alignment.")
 
-    # Select top matches for alignment
-    num_matches = min(100, len(matches))
-    selected_matches = sorted(matches, key=lambda x: x.distance)[:num_matches]
-
     # Extract corresponding keypoints
-    points_reference = np.float32([keypoints_reference[m.queryIdx].pt for m in selected_matches]).reshape(-1, 1, 2)
-    points_image = np.float32([keypoints_image[m.trainIdx].pt for m in selected_matches]).reshape(-1, 1, 2)
+    points_reference = np.float32([keypoints_reference[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)
+    points_image = np.float32([keypoints_image[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
 
     # Estimate perspective transformation
     transformation_matrix, _ = cv2.findHomography(points_image, points_reference, cv2.RANSAC, 5.0)
 
     # Warp the image to align with the reference image
-    aligned_image = cv2.warpPerspective(image, transformation_matrix, (reference_image.shape[1], reference_image.shape[0]))
+    aligned_image = cv2.warpPerspective(image, transformation_matrix,
+                                        (reference_image.shape[1], reference_image.shape[0]))
 
     return aligned_image
+
 
 def align_png_images(output_dir, reference_image_path):
     # Create the output directory if it doesn't exist
@@ -100,6 +101,7 @@ def align_png_images(output_dir, reference_image_path):
     plt.title("Difference in Pixel Values between Aligned Images and Reference Image")
     plt.show()
 
+
 def align_and_save_image(input_image_path, reference_image_path, output_dir):
     # Load the input image
     input_image = cv2.imread(input_image_path)
@@ -116,10 +118,11 @@ def align_and_save_image(input_image_path, reference_image_path, output_dir):
 
     print(f"Aligned image saved: {aligned_image_path}")
 
+
 # Specify the input PNG image path, reference image path, and output directory
-input_image_path = "PostImages/PostDenseNet_Adv_P2.png"
-reference_image_path = "Preimages/output_sheet_2.png"
-output_dir = "AlignedImages"
+input_image_path = "PostImagesSimpleCNN_Val/PostSimpleCNN_Val_P11.png"
+reference_image_path = "PreImagesSimpleCNN_Val/output_sheet_11.png"
+output_dir = "AlignedImagesSimpleCNN_Val"
 
 # Create the output directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)
