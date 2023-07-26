@@ -11,10 +11,10 @@ BUBBLE_WIDTH = 50  # Bubble width in pixels
 BUBBLE_HEIGHT = 40  # Bubble height in pixels
 
 # Directory containing the bubble PNGs
-bubble_directory = "Printed_Val_vs_Adv/BalCombined_SimpleCNN_PGD_Adv_Images"
+bubble_directory = "Printed_Val_vs_Adv/BalCombined_SimpleCNN_PGD_Val_Images"
 
 # Create the Val directory if it doesn't exist
-os.makedirs("PreImagesSimpleCNN_Adv", exist_ok=True)
+os.makedirs("PreImagesSimpleCNN_Val", exist_ok=True)
 
 # Function to extract batch_index and example_index from the filename
 def get_batch_and_example_indices(filename):
@@ -90,12 +90,15 @@ while bubbles_placed < len(png_files):
         x += BUBBLE_WIDTH + SPACING
 
     # Save the sheet in the PreImagesSimpleCNN_Val directory
-    output_path = f"PreImagesSimpleCNN_Adv/output_sheet_{sheet_index}.png"
+    output_path = f"PreImagesSimpleCNN_Val/output_sheet_{sheet_index}.png"
     sheet.save(output_path)
 
     # Update the counters
     sheet_index += 1
     bubbles_placed += total_bubbles_per_sheet
+
+print(f"{sheet_index - 1} sheets have been generated in the PreImagesSimpleCNN_Val directory.")
+print("Labels array:", labels)
 
 
 # Adversarial example pattern code
