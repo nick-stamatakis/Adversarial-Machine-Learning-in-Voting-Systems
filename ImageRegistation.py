@@ -119,13 +119,14 @@ def align_and_save_image(input_image_path, reference_image_path, output_dir):
     print(f"Aligned image saved: {aligned_image_path}")
 
 
-# Specify the input PNG image path, reference image path, and output directory
-input_image_path = "PostImagesSimpleCNN_Val/PostSimpleCNN_Val_P11.png"
-reference_image_path = "PreImagesSimpleCNN_Val/output_sheet_11.png"
-output_dir = "AlignedImagesSimpleCNN_Val"
+for i in range(1,12):
+    # Specify the input PNG image path, reference image path, and output directory
+    input_image_path = f"PostVALEX/PostVALEX_P{i}.png"
+    reference_image_path = f"PreImagesVAL/output_sheet_{i}.png"
+    output_dir = "AlignedImagesVAL"
 
-# Create the output directory if it doesn't exist
-os.makedirs(output_dir, exist_ok=True)
+    # Create the output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
 
-# Align and save the input image
-align_and_save_image(input_image_path, reference_image_path, output_dir)
+    # Align and save the input image
+    align_and_save_image(input_image_path, reference_image_path, output_dir)
