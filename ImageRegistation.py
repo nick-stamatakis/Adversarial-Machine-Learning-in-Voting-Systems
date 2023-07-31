@@ -3,7 +3,6 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-
 def align_images(reference_image, image):
     # Find features and match keypoints
     sift = cv2.SIFT_create()
@@ -118,12 +117,13 @@ def align_and_save_image(input_image_path, reference_image_path, output_dir):
 
     print(f"Aligned image saved: {aligned_image_path}")
 
+num_pages = 106
 
-for i in range(1,12):
+for i in range(1,num_pages):
     # Specify the input PNG image path, reference image path, and output directory
-    input_image_path = f"PostVALEX/PostVALEX_P{i}.png"
-    reference_image_path = f"PreImagesVAL/output_sheet_{i}.png"
-    output_dir = "AlignedImagesVAL"
+    input_image_path = f"PostTrainBubbles/PostTrainBubbles_P{i}.png"
+    reference_image_path = f"PreImagesTraining/output_sheet_{i}.png"
+    output_dir = "AlignedImagesTraining"
 
     # Create the output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
